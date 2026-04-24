@@ -1,37 +1,41 @@
 "use client";
 
-import { ScheduleRow } from "@/types/schedule";
+import { Article } from "@/types/article";
 import { exportCsv, exportTsv } from "@/lib/exportSchedule";
 
 type ExportButtonsProps = {
-  rows: ScheduleRow[];
+  articles: Article[];
+  activeRowCount: number;
   onClear: () => void;
 };
 
-export default function ExportButtons({ rows, onClear }: ExportButtonsProps) {
+export default function ExportButtons({ articles, activeRowCount, onClear }: ExportButtonsProps) {
+  const totalRows = articles.reduce((sum, a) => sum + a.rows.length, 0);
+  const articleCount = articles.filter((a) => a.rows.length > 0).length;
+
   const handleClear = () => {
-    if (rows.length === 0) return;
-    if (confirm("全てのデータをクリアしますか？")) {
+    if (activeRowCount === 0) return;
+    if (confirm("現在の記事の日程をすべてクリアしますか？")) {
       onClear();
     }
   };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-wrap items-center gap-3">
-      <span className="text-sm text-gray-500 mr-2">
-        {rows.length} 件
+      <span className="text-sm text-gray-500 mr-1">
+        {articleCount} 記事 / 合計 {totalRows} 件
       </span>
       <button
-        onClick={() => exportCsv(rows)}
-        className="px-5 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition-colors"
-      >
-        CSV エクスポート
-      </button>
-      <button
-        onClick={() => exportTsv(rows)}
+        onClick={() => exportTsv(articles)}
         className="px-5 py-2 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors"
       >
-        TSV エクスポート
+        Vista用エクスポート
+      </button>
+      <button
+        onClick={() => exportCsv(articles)}
+        className="px-5 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition-colors"
+      >
+        WP用エクスポート
       </button>
       <button
         onClick={handleClear}
